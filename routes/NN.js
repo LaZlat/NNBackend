@@ -16,8 +16,19 @@ function compare(a, b) {
     return 0;
 }
 
+function distanceMetricOne(source, target) {
+    return new Obj(Math.sqrt(Math.pow((source.x - target.x), 2) +
+        Math.pow((source.y - target.y), 2)), target.class);
+}
+
+function distanceMetricTwo(source, target) {
+    return new Obj(Math.max(Math.abs((source.x - target.x)),
+        Math.abs((source.y - target.y))), target.class);
+}
+
 router.get("/", function(req, res) {
-    let neighboursCount = req.query.neighbours;
+    let distMetric = req.query.met;
+    let neighboursCount = req.query.nn;
     let id = req.query.id;
     if (!id || !neighboursCount) {
         return res.send('a tu durns?')
@@ -36,9 +47,11 @@ router.get("/", function(req, res) {
         }
 
         for (let i = 0; i < Object.keys(notNullObjects).length; i++) {
-            var newObj = new Obj(Math.sqrt(Math.pow((nullObjects[0].x - notNullObjects[i].x), 2) +
-                Math.pow((nullObjects[0].y - notNullObjects[i].y), 2)), notNullObjects[i].class);
-            neighbourDistances.push(newObj);
+            if (distMetric == 1)
+                neighbourDistances.push(distanceMetricOne(nullObjects[0], notNullObjects[i]));
+            else {
+                neighbourDistances.push(distanceMetricTwo(nullObjects[0], notNullObjects[i]));
+            }
         }
 
         neighbourDistances = neighbourDistances.sort(compare)
