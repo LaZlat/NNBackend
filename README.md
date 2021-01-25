@@ -9,3 +9,5 @@ Post -> http://localhost:3000/insert/?cl=0&id=7 Iraso i DB.Nurodyti cl tai kokia
 Put -> http://localhost:3000/reset Nuresetina 7 ir 8 elementu klases i null.
     
 SVARBU!!! reikia susikurti db.js faila pagal pateikta sablona.
+
+PALEISTI SERVERI PER server.js
