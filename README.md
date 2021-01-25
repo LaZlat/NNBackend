@@ -1,4 +1,4 @@
-Requests examples:
+## 1b linkai ---
 
 Get -> http://localhost:3000/ Grazins visus irasus is DB kaip JSON
 
@@ -10,7 +10,7 @@ Put -> http://localhost:3000/reset Nuresetina 7 ir 8 elementu klases i null.
     
 SVARBU!!! reikia susikurti db.js faila pagal pateikta sablona.
 
-#1a Linkai --
+## 1a Linkai ---
 
 Get -> http://localhost:3000/NN/1a/?met=2&nn=2&id=5&sp=2 - viskas tas pats tik turim sp(sportas) = 1 - soccer, 2- basketball.
 
