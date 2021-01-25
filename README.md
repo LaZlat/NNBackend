@@ -14,6 +14,6 @@ SVARBU!!! reikia susikurti db.js faila pagal pateikta sablona.
 
 Get -> http://localhost:3000/NN/1a/?met=2&nn=2&id=5&sp=2 - viskas tas pats tik turim sp(sportas) = 1 - soccer, 2- basketball.
 
-Get -> http://localhost:3000/NN/1a/?met=2&nn=2&id=5&sp=2 - duoda visus csv duomenis.
+Get -> http://localhost:3000/1a - duoda visus csv duomenis.
 
 PALEISTI SERVERI PER server.js
