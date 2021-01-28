@@ -16,4 +16,9 @@ Get -> http://localhost:3000/NN/1a/?met=2&nn=2&id=5&sp=2 - viskas tas pats tik t
 
 Get -> http://localhost:3000/1a - duoda visus csv duomenis.
 
+Get -> http://localhost:3000/NN/validate - grazina formules tiksluma su pradniais duomenimis
+
+Get -> http://localhost:3000/NN/1a/new/?met=2&nn=3&sp=2&h=1.85&w=60 - viskas tas pats tik turim sp(sportas) = 1 - soccer, 2- basketball. nn - kaimynai, h - ugis, w -svoris
+
+
 PALEISTI SERVERI PER server.js
