@@ -1,6 +1,8 @@
 const express = require('express')
+const rp = require('request-promise')
 const router = express.Router()
 const fs = require('fs');
+const { json } = require('express');
 
 function Obj(distance, cl) {
     this.distance = distance;
@@ -101,12 +103,12 @@ function readFile() {
         for (var i = 1; i < lines.length; i++) {
             let col = lines[i].split(',');
             players.push({
-                idobject: col[0],
+                idobject: col[0].replace( /[\r\n]+/gm, "" ),
                 full_name: col[1],
                 height: col[2],
                 weight: col[3],
                 sport: col[4],
-                position: col[5]
+                position: col[5].replace( /[\r\n]+/gm, "" )
             });
         }
 
@@ -130,7 +132,7 @@ router.get("/1a/", function(req, res) {
 
     let players = readFile();
 
-    if (players) {
+    if (players) { 
         let destPlayer = players[id - 1];
         players = players.filter(item => item.full_name != destPlayer.full_name);
 
@@ -163,7 +165,7 @@ router.get("/1a/", function(req, res) {
                 }
             }
         }
-        console.log(finalNeighbours);
+        //console.log(finalNeighbours);
 
         const countUnique = arr => {
             const counts = {};
@@ -181,7 +183,133 @@ router.get("/1a/", function(req, res) {
         finalClasses.sort(function(a, b) {
             return b.value - a.value;
         })
-        console.log(finalClasses);
+        //console.log(finalClasses);
+
+        destPlayer.position = finalClasses[0].class;
+
+        if (finalClasses.length > 1)
+            if (finalClasses[0].value == finalClasses[1].value)
+                destPlayer.position = null;
+
+        res.send(destPlayer)
+    } else
+        res.sendStatus(500)
+
+})
+
+router.get("/validate", function(req, res) {
+    let playersWithPosition = readFile();
+    let playersWithoutPosition = readFile();
+    let urls = []
+
+    playersCount = playersWithPosition.length;
+
+    for (var i in playersWithoutPosition) {
+        playersWithoutPosition[i].position = null;
+    };
+
+    for (var i in playersWithoutPosition) {
+        if (playersWithoutPosition[i].sport == "Soccer") {
+            urls.push('http://localhost:3000/NN/1a/?met=1&nn='+ 5 +'&id='+playersWithoutPosition[i].idobject+'&sp=1')
+        } else {
+            urls.push('http://localhost:3000/NN/1a/?met=1&nn='+ 5 +'&id='+playersWithoutPosition[i].idobject+'&sp=2')
+        }
+    };
+
+    const promises = urls.map(url => rp(url));
+    Promise.all(promises).then((data) => {
+        let proc = 0;
+
+        for (var i in playersWithPosition) {
+            if (playersWithPosition[i].position == JSON.parse(data[i])) {
+                proc++;
+            }
+        };
+
+        proc = proc / playersCount * 100;
+
+        res.send(String(proc))
+        //res.send(String(data))
+    });
+
+})
+
+router.get("/1a/new/", function(req, res) {
+
+    let distMetric = req.query.met;
+    let neighboursCount = req.query.nn;
+    let sport = req.query.sp;
+    let height = req.query.h;
+    let weight = req.query.w
+
+    if (!neighboursCount) {
+        return res.send('nu tikrai durns!')
+    }
+    let neighbourDistances = [];
+
+    let players = readFile();
+
+    if (players) { 
+        //console.log(players);
+
+        if (sport == 1) {
+            players = players.filter(item => item.sport != "Basketball" && item.sport != "" && item.position != "")
+            destPlayer = {
+                full_name: "bandomasis",
+                height: height,
+                weight: weight,
+                sport: "Soccer",
+                position: null
+            }
+        } else {
+            players = players.filter(item => item.sport != "Soccer" && item.sport != "" && item.position != "")
+            destPlayer = {
+                full_name: "bandomasis",
+                height: height,
+                weight: weight,
+                sport: "Basketball",
+                position: null
+            }
+        }
+
+        players.forEach(player => {
+            if (distMetric == 1)
+                neighbourDistances.push(distanceMetricOne(destPlayer.height, destPlayer.weight, player.height, player.weight, player.position));
+            else {
+                neighbourDistances.push(distanceMetricTwo(destPlayer.height, destPlayer.weight, player.height, player.weight, player.position));
+            }
+        });
+
+        neighbourDistances = neighbourDistances.sort(compare)
+        let finalNeighbours = neighbourDistances.slice(0, neighboursCount);
+
+        for (let i = neighboursCount; i < neighbourDistances.length; i++) {
+            for (let j = 0; j < finalNeighbours.length; j++) {
+                if (neighbourDistances[i].distance == finalNeighbours[j].distance) {
+                    finalNeighbours.push(neighbourDistances[i])
+                    break;
+                }
+            }
+        }
+        //console.log(finalNeighbours);
+
+        const countUnique = arr => {
+            const counts = {};
+            for (var i = 0; i < arr.length; i++) {
+                counts[arr[i].cl] = 1 + (counts[arr[i].cl] || 0);
+            };
+
+            var arrSort = []
+            for (var k in counts) {
+                arrSort.push({ class: k, value: counts[k] });
+            }
+            return arrSort;
+        };
+        let finalClasses = countUnique(finalNeighbours);
+        finalClasses.sort(function(a, b) {
+            return b.value - a.value;
+        })
+        //console.log(finalClasses);
 
         destPlayer.position = finalClasses[0].class;
 

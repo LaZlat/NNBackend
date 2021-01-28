@@ -18,12 +18,12 @@ router.get("/1a", function(req, res) {
         for (var i = 1; i < lines.length; i++) {
             let col = lines[i].split(',');
             players.push({
-                idobject: col[0],
+                idobject: col[0].replace( /[\r\n]+/gm, "" ),
                 full_name: col[1],
                 height: col[2],
                 weight: col[3],
                 sport: col[4],
-                position: col[5]
+                position: col[5].replace( /[\r\n]+/gm, "" )
             });
         }
 
