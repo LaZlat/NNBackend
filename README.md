@@ -1,6 +1,6 @@
 #3TASK
 Get -> http://localhost:3000/ Grazins visus irasus nuskaicius is failo
-Get -> http://localhost:3000/NN/ grazina objektus kurie buvo be klases su jau priskirta klase. PASKUTINIS IRASAS BUNA VECTORIUS KURI GAL ATVAIZDUOTI KAIP TIESE GRAFIKE T.Y. FUNKCIAJ PAGAL KURIA APSKAICIUOJAMA
+Get -> http://localhost:3000/NN/ grazina objektus kurie buvo be klases su jau priskirta klase. PASKUTINIS IRASAS BUNA VECTORIUS KURI GAL ATVAIZDUOTI KAIP TIESE GRAFIKE T.Y. FUNKCIAJ PAGAL KURIA APSKAICIUOJAMA. PVZ jei ateina paskutinis x:2 y:0 ir free:9 , tai atvaizduoti kaip 2x + 0y - 9
 
 #-----
 
