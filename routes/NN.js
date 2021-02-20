@@ -1,93 +1,107 @@
 const express = require('express')
 const router = express.Router()
+const fs = require('fs');
 
-function Obj(distance, cl) {
-    this.distance = distance;
-    this.cl = cl;
+function Obj(idobject, x, y, klass) {
+    this.idobject = idobject;
+    this.x = x;
+    this.y = y;
+    this.klass = klass;
 }
 
-function compare(a, b) {
-    if (a.distance < b.distance) {
-        return -1;
+function readFile() {
+    try {
+        var data = fs.readFileSync('data.csv', 'utf8');
+        const lines = data.split('\n');
+
+        let objects = [];
+        for (var i = 1; i < lines.length; i++) {
+            let col = lines[i].split(',');
+            objects.push({
+                idobject: col[0],
+                x: col[1],
+                y: col[2],
+                klass: col[3].replace( /[\r\n]+/gm, "" )
+            });
+        }
+        return objects;
+    } catch (e) {
+        return null;
     }
-    if (a.distance > b.distance) {
-        return 1;
-    }
-    return 0;
 }
 
-function distanceMetricOne(source, target) {
-    return new Obj(Math.sqrt(Math.pow((source.x - target.x), 2) +
-        Math.pow((source.y - target.y), 2)), target.class);
-}
-
-function distanceMetricTwo(source, target) {
-    return new Obj(Math.max(Math.abs((source.x - target.x)),
-        Math.abs((source.y - target.y))), target.class);
-}
+let vector
 
 router.get("/", function(req, res) {
-    let distMetric = req.query.met;
-    let neighboursCount = req.query.nn;
-    let id = req.query.id;
-    if (!id || !neighboursCount) {
-        return res.send('a tu durns?')
+
+    let _CORRECTVECOTOR = false;
+
+    let objects = readFile();
+    let fullObjects = [];
+    let tempObjects = [];
+    let emptyObjects = [];
+    let vector = {
+        x: Math.ceil(Math.random() * 9) * (Math.round(Math.random()) ? 1 : -1),
+        y: Math.ceil(Math.random() * 9) * (Math.round(Math.random()) ? 1 : -1),
+        free: Math.ceil(Math.random() * 9) * (Math.round(Math.random()) ? 1 : -1)
     }
-    let neighbourDistances = [];
 
-    (async() => {
-        const notNullObjects = await query('SELECT * FROM object WHERE class IS NOT NULL');
-        const nullObjects = await query('SELECT * FROM object WHERE class IS NULL AND idobject = ' + id);
-
-        let willBeResult = {
-            idobject: nullObjects[0].idobject,
-            x: nullObjects[0].x,
-            y: nullObjects[0].y,
-            class: ""
-        }
-
-        for (let i = 0; i < Object.keys(notNullObjects).length; i++) {
-            if (distMetric == 1)
-                neighbourDistances.push(distanceMetricOne(nullObjects[0], notNullObjects[i]));
-            else {
-                neighbourDistances.push(distanceMetricTwo(nullObjects[0], notNullObjects[i]));
-            }
-        }
-
-        neighbourDistances = neighbourDistances.sort(compare)
-        let finalNeighbours = neighbourDistances.slice(0, neighboursCount);
-
-        for (let i = neighboursCount; i < neighbourDistances.length; i++) {
-            for (let j = 0; j < finalNeighbours.length; j++) {
-                if (neighbourDistances[i].distance == finalNeighbours[j].distance) {
-                    finalNeighbours.push(neighbourDistances[i])
-                    break;
-                }
-            }
-        }
-
-        let pluses = 0;
-        let minuses = 0;
-
-        for (let i = 0; i < finalNeighbours.length; i++) {
-            if (finalNeighbours[i].cl == 1) {
-                pluses++;
-            } else {
-                minuses++;
-            }
-        }
-
-        if (pluses > minuses) {
-            willBeResult.class = "1";
-        } else if (minuses > pluses) {
-            willBeResult.class = "0";
+    objects.forEach(function(item){
+        if (item.klass !== "null") {
+            fullObjects.push(item);
         } else {
-            willBeResult.class = null
+            emptyObjects.push(item);
         }
+    })
 
-        res.send(willBeResult)
+    while (_CORRECTVECOTOR == false) {
 
-    })()
+        fullObjects.forEach(function(item) {
+            tempObjects.push({
+                idobject: item.idobject,
+                value: vector.x * item.x + vector.y * item.y + vector.free * (-1)
+            })
+        });
+
+        _CORRECTVECOTOR = true;
+
+        for (let i = 0; i < fullObjects.length; i++) {
+            if (tempObjects[i].value < 0 && fullObjects[i].klass == 1) {
+                _CORRECTVECOTOR = false;
+                tempObjects = [];
+                vector = {
+                    x: Math.ceil(Math.random() * 9) * (Math.round(Math.random()) ? 1 : -1),
+                    y: Math.ceil(Math.random() * 9) * (Math.round(Math.random()) ? 1 : -1),
+                    free: Math.ceil(Math.random() * 9) * (Math.round(Math.random()) ? 1 : -1)
+                }
+                break;
+            }
+        
+            if (tempObjects[i].value >= 0 && fullObjects[i].klass == 0) {
+                _CORRECTVECOTOR = false;
+                tempObjects = [];
+                vector = {
+                    x: Math.ceil(Math.random() * 9) * (Math.round(Math.random()) ? 1 : -1),
+                    y: Math.ceil(Math.random() * 9) * (Math.round(Math.random()) ? 1 : -1),
+                    free: Math.ceil(Math.random() * 9) * (Math.round(Math.random()) ? 1 : -1)
+                }
+                break;
+            }
+        }
+    }
+
+    emptyObjects.forEach(function(item) {
+        if (vector.x * item.x + vector.y * item.y - vector.free < 0) {
+            item.klass = 0;
+        } else {
+            item.klass = 1;
+        }
+    })
+
+    emptyObjects.push(vector);
+
+    res.send(emptyObjects)
+
 
 })
 

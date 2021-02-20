@@ -16,12 +16,9 @@ global.query = query;
 
 const NNRoutes = require('./routes/NN')
 const mainRoutes = require('./routes/main')
-const insertRoutes = require('./routes/insert')
-const resetRoutes = require('./routes/reset')
+
 
 app.use('/NN', NNRoutes)
 app.use('/', mainRoutes)
-app.use('/insert', insertRoutes)
-app.use('/reset', resetRoutes)
 
 module.exports = app
