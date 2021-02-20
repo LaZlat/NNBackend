@@ -1,3 +1,7 @@
+#3TASK
+
+#####
+
 Requests examples:
 
 Get -> http://localhost:3000/ Grazins visus irasus is DB kaip JSON
