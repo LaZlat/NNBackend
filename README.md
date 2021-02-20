@@ -1,6 +1,8 @@
 #3TASK
+Get -> http://localhost:3000/ Grazins visus irasus nuskaicius is failo
+Get -> http://localhost:3000/NN/ grazina objektus kurie buvo be klases su jau priskirta klase. PASKUTINIS IRASAS BUNA VECTORIUS KURI GAL ATVAIZDUOTI KAIP TIESE GRAFIKE T.Y. FUNKCIAJ PAGAL KURIA APSKAICIUOJAMA
 
-#####
+#-----
 
 Requests examples:
 
